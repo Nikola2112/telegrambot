@@ -3,9 +3,11 @@ package com.goit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.goit")
+@PropertySource("classpath:application.properties")
 public class Launcher {
     public static void main(String args[]){
         SpringApplication.run(Launcher.class, args);

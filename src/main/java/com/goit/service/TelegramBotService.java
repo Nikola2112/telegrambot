@@ -7,6 +7,7 @@ import com.goit.command.impl.TicketDateCommand;
 import com.goit.command.input.CustomerInput;
 import com.goit.config.BotConfig;
 import com.goit.dto.CustomerDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,6 +27,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final BotConfig config;
     private final List<CommandHandler> handlers;
 
+    @Autowired
     public TelegramBotService(InvoiceService invoiceService, TicketService ticketService
             , CustomerService customerService,  BotConfig config) {
         this.invoiceService = invoiceService;
@@ -58,8 +60,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 customerService.registered(customerDto);
             }
             if (update.getMessage().hasText()) {
-                final var userInput = toUserInput(update);
-                final var responseMessage = handleCommand(userInput);
+                final var customerInput = toCustomerInput(update);
+                final var responseMessage = handleCommand(customerInput);
                 sendMessage(responseMessage);
             }
         }
@@ -96,13 +98,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .handle(customerInput);
     }
 
-    private CustomerInput toUserInput(final Update update) {
-        return new CustomerInput(
+
+    private CustomerInput toCustomerInput(final Update update) {
+      return  new CustomerInput(
                 update.getMessage().getChatId(),
                 update.getMessage().getChat().getFirstName(),
                 update.getMessage().getChat().getLastName(),
                 new Timestamp(update.getMessage().getDate()),
                 update.getMessage().getText()
         );
+
     }
 }

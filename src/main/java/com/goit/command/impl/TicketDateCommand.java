@@ -49,8 +49,7 @@ public class TicketDateCommand extends MainCommand {
 
     private LocalDateTime parseLocalDateTime(CustomerInput customerInput) {
         DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        String input = customerInput.getValue().orElseThrow(() -> new IllegalArgumentException("Input value is empty"));
-        return LocalDateTime.parse(input, dateTimeFormat);
+        return LocalDateTime.parse(customerInput.getValue(), dateTimeFormat);
     }
     private boolean isPastDate(LocalDateTime dateTime) {
         return LocalDateTime.now().isAfter(dateTime);

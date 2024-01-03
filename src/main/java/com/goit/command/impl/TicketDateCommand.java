@@ -27,6 +27,11 @@ public class TicketDateCommand extends MainCommand {
     }
 
     @Override
+    public boolean supports(String name) {
+        return super.supports(name);
+    }
+
+    @Override
     public SendMessage handle(CustomerInput customerInput) {
         if (!isValidDate(customerInput)) {
             String answer = String.format(Answer.MESSAGE_DATE_INVALID, customerInput.getValue());

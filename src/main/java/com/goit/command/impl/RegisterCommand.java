@@ -18,8 +18,12 @@ public class RegisterCommand extends MainCommand {
         public static final String COMMAND_NAME = "/register";
         private final CustomerService customerService;
 
+    @Override
+    public boolean supports(String name) {
+        return super.supports(name);
+    }
 
-      public RegisterCommand(CustomerService customerService) {
+    public RegisterCommand(CustomerService customerService) {
         this.customerService = customerService;
       }
 

@@ -10,6 +10,11 @@ public class HelpCommand extends MainCommand{
     public static final String COMMAND_NAME = "/help";
 
     @Override
+    public boolean supports(String name) {
+        return super.supports(name);
+    }
+
+    @Override
     public SendMessage handle(CustomerInput customerInput) {
         Objects.requireNonNull(customerInput, "userInput must not be null");
 

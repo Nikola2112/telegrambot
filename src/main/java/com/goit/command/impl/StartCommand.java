@@ -28,6 +28,11 @@ public class StartCommand extends MainCommand {
     }
 
     @Override
+    public boolean supports(String name) {
+        return super.supports(name);
+    }
+
+    @Override
     protected String getCommandName() {
         return COMMAND_NAME;
     }

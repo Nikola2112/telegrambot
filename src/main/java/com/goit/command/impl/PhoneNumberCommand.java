@@ -19,7 +19,12 @@ public class PhoneNumberCommand extends MainCommand {
             this.phoneNumberValidator = phoneNumberValidator;
         }
 
-        @Override
+    @Override
+    public boolean supports(String name) {
+        return super.supports(name);
+    }
+
+    @Override
         public SendMessage handle(CustomerInput customerInput) {
             String customerValue = String.valueOf(customerInput.getValue());
 

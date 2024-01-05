@@ -3,27 +3,20 @@ package com.goit.command.impl;
 
 import com.goit.command.constant.Answer;
 import com.goit.command.input.CustomerInput;
-import com.goit.dto.TicketDto;
-
-import com.goit.service.TicketService;
+import com.goit.entity.Ticket;
+import com.goit.excetpion.ResourcesNotFound;
+import com.goit.service.BookingTicketService;
 import com.goit.validator.DateValidator;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class TicketDateCommand extends MainCommand {
     public static final String COMMAND_NAME = "/date_of_visit";
-    private final TicketService ticketService;
+    private final BookingTicketService ticketService;
 
-    public TicketDateCommand(TicketService ticketService) {
+    public TicketDateCommand(BookingTicketService ticketService) {
         this.ticketService = ticketService;
-    }
-
-    @Override
-    protected String getCommandName() {
-        return COMMAND_NAME;
     }
 
     @Override
@@ -32,31 +25,26 @@ public class TicketDateCommand extends MainCommand {
     }
 
     @Override
+    protected String getCommandName() {
+        return COMMAND_NAME;
+    }
+
+    @Override
     public SendMessage handle(CustomerInput customerInput) {
-        if (!isValidDate(customerInput)) {
-            String answer = String.format(Answer.MESSAGE_DATE_INVALID, customerInput.getValue());
+         var validator = new DateValidator();
+        if (customerInput.getValue() == null || !validator.isValid(customerInput.getValue())) {
+            final var answer = String.format(Answer.MESSAGE_DATE_INVALID, customerInput.getValue());
             return new SendMessage(String.valueOf(customerInput.getChatId()), answer);
         }
-
-        LocalDateTime parseDateTime = parseLocalDateTime(customerInput);
-
-        if (isPastDate(parseDateTime)) {
+        final var ticket = new Ticket(customerInput.getChatId(), customerInput.getValue());
+        if (ticket.isAfter()) {
             return new SendMessage(String.valueOf(customerInput.getChatId()), Answer.MESSAGE_PAST_DATE);
         }
-
-        ticketService.createTicket(new TicketDto(customerInput.getChatId(), parseDateTime));
-        return new SendMessage(String.valueOf(customerInput.getChatId()), Answer.MESSAGE_DATE_VALID);
-    }
-
-    private boolean isValidDate(CustomerInput customerInput) {
-        return customerInput.getValue() != null && new DateValidator().isValid(String.valueOf(customerInput.getValue()));
-    }
-
-    private LocalDateTime parseLocalDateTime(CustomerInput customerInput) {
-        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        return LocalDateTime.parse(customerInput.getValue(), dateTimeFormat);
-    }
-    private boolean isPastDate(LocalDateTime dateTime) {
-        return LocalDateTime.now().isAfter(dateTime);
+        try {
+            ticketService.createTicket(ticket);
+            return new SendMessage(String.valueOf(customerInput.getChatId()), Answer.MESSAGE_DATE_VALID);
+        } catch (ResourcesNotFound e) {
+            return new SendMessage(String.valueOf(customerInput.getChatId()), Answer.MESSAGE_USER_IS_NOT_REGISTER);
+        }
     }
 }

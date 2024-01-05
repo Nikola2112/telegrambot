@@ -1,35 +1,48 @@
 package com.goit.entity;
 
 
+import com.goit.utils.DateTimeFormatters;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
-public class Ticket {
+@Table(name = "ticket")
+public class Ticket implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long ticketId;
+    @Column(name = "customer_id")
+    private Long customerId;
+    @Enumerated(EnumType.STRING)
+    private TicketStatus status;
 
-    private Long chatId;
-
+    @Column(unique = true)
     private LocalDateTime dateOfVisit;
 
+    public Ticket(Long customerId, String dateOfVisit) {
+        this.customerId = customerId;
+        this.dateOfVisit = DateTimeFormatters.localDateTimeStringParser(dateOfVisit);
+        this.status = TicketStatus.BOOKED;
+    }
 
+    public boolean isAfter() {
+        final var dateTimeNow = LocalDateTime.now();
+        return dateTimeNow.isAfter(dateOfVisit);
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-
+    public void updateStatus(TicketStatus ticketStatus) {
+        this.status = ticketStatus;
+    }
 }

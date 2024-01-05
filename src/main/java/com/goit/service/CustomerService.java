@@ -1,39 +1,41 @@
 package com.goit.service;
 
-import com.goit.dto.*;
+import com.goit.dto.RegisteredCustomerDto;
 import com.goit.entity.Customer;
-
+import com.goit.entity.CustomerRole;
+import com.goit.excetpion.ResourcesNotFound;
 import com.goit.repository.CustomerRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
 
     public Customer findById(Long chatId) {
-        return customerRepository.findById(chatId).orElseThrow();
-    }
-    public void registered(CustomerDto customerDto) {
-        customerRepository.save(customerDto.toCustomer());
+        return customerRepository.findById(chatId)
+                .orElseThrow(() -> new ResourcesNotFound(chatId));
     }
 
-    public boolean existsByChatId(Long chatId){
+    public void registered(RegisteredCustomerDto customerDto) {
+        customerRepository.save(customerDto.toCustomer());
+        log.info("Registered user with ID: " + customerDto.getChatId());
+    }
+
+    public boolean existsByChatId(Long chatId) {
         return customerRepository.existsByChatId(chatId);
     }
 
-
-    @Transactional
-    public void updatePhoneNumber(UpdatePhoneCustomerDto phoneCustomer) {
-        Customer customerUpdate = findById(phoneCustomer.getChatId());
-        customerUpdate.updatePhoneNumber(phoneCustomer.getPhoneNumber());
+    public List<Customer> findByRole(CustomerRole customerRole) {
+        return customerRepository.findByRole(customerRole);
     }
+
 }

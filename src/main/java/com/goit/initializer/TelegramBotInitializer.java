@@ -1,7 +1,9 @@
 package com.goit.initializer;
 
-import com.goit.service.TelegramBotService;
+import com.goit.service.TelegramBotStarter;
+import com.goit.excetpion.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -11,18 +13,20 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class TelegramBotInitializer {
 
-    private final TelegramBotService telegramBotService;
+    private final TelegramBotStarter telegramBotStarter;
 
     @EventListener({ContextRefreshedEvent.class})
-    void init() throws TelegramApiException {
+    public void init() throws TelegramApiException {
         var telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
-            telegramBotsApi.registerBot(telegramBotService);
+            telegramBotsApi.registerBot(telegramBotStarter);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            log.error("An error occurred while connecting to the Telegram bot!");
+            throw new ApplicationException("Error in method init(). Message: " + e.getMessage());
         }
     }
 }

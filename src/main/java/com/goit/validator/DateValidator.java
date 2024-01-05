@@ -1,8 +1,8 @@
 package com.goit.validator;
-import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
-@Component
+
+
 public class DateValidator implements Validator {
 
     private static final String DATE_TIME_REGEX = "^([0-9]{2})\\/([0-9]{2})\\/([0-9]{4})\\s([0-9]{2}):([0-9]{2})$";

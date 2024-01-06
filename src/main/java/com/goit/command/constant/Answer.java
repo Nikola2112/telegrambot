@@ -14,7 +14,7 @@ public class Answer {
                         "%nUse the /help command to view a list of commands.";
         public static final String MESSAGE_HELP_COMMAND =
                 "To book a ticket, execute the following two commands:" +
-                        "%n/register - User registration" +
+                        "%n/register - Customer registration" +
                         "%n/date_of_visit - dd/mm/yyyy hh:mm";
         public static final String MESSAGE_REGISTERED = "You are already registered!";
         public static final String MESSAGE_DATE_VALID = "Great! We saved your visit date.";

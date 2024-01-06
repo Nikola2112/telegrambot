@@ -13,8 +13,8 @@ import java.util.List;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer,Long> {
-    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Customer c WHERE c.chatId = :chatId")
-    boolean existsByChatId(@Param("chatId") Long chatId);
+
+    boolean existsByChatId(Long chatId);
     List<Customer> findByRole(CustomerRole role);
 }
 

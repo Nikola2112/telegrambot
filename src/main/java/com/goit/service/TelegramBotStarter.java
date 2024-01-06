@@ -3,13 +3,11 @@ package com.goit.service;
 import com.goit.command.*;
 import com.goit.command.impl.*;
 
+
 import com.goit.command.input.CustomerInput;
 import com.goit.config.BotConfig;
-import com.goit.dto.RegisteredCustomerDto;
-import com.goit.entity.CustomerRole;
+
 import com.goit.excetpion.ApplicationException;
-import com.goit.service.BookingTicketService;
-import com.goit.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,9 +16,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
-import java.sql.Timestamp;
+
 import java.util.List;
 import java.util.Optional;
+
+
+import static com.goit.utils.DtoConverter.toCustomerInput;
+import static com.goit.utils.DtoConverter.toRegisteredCustomerDto;
+
 
 
 @Component
@@ -76,6 +79,13 @@ public class TelegramBotStarter extends TelegramLongPollingBot {
             log.error("Another error: " + e.getMessage());
         }
     }
+    public void sendMessage( SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new ApplicationException("Error in method sendMessage()");
+        }
+    }
     private SendMessage handleCommand(final CustomerInput customerInput) {
         log.info("Starting command processing from user with ID: " + customerInput.getChatId());
         Optional<CommandHandler> currentHandler = Optional.empty();
@@ -89,34 +99,5 @@ public class TelegramBotStarter extends TelegramLongPollingBot {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Sorry, command was not recognized: " + customerInput.getCommand()))
                 .handle(customerInput);
-    }
-
-    public void sendMessage(final SendMessage sendMessage) {
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new ApplicationException("Error in method sendMessage()");
-        }
-    }
-
-    private RegisteredCustomerDto toRegisteredCustomerDto(Update update) {
-        return RegisteredCustomerDto.builder()
-                .chatId(update.getMessage().getChatId())
-                .firstName(update.getMessage().getContact().getFirstName())
-                .lastName(update.getMessage().getContact().getLastName())
-                .phoneNumber(update.getMessage().getContact().getPhoneNumber())
-                .role(CustomerRole.ROLE_USER)
-                .registeredAt(new Timestamp((long) update.getMessage().getDate() * 1000))
-                .build();
-    }
-
-    private CustomerInput toCustomerInput(final Update update) {
-        return new CustomerInput(
-                update.getMessage().getChatId(),
-                update.getMessage().getChat().getFirstName(),
-                update.getMessage().getChat().getLastName(),
-                new Timestamp(update.getMessage().getDate()),
-                update.getMessage().getText()
-        );
     }
 }
